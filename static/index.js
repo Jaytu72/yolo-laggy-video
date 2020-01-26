@@ -1,14 +1,13 @@
-// Functions imported from @MikeShi42 (https://github.com/ModelDepot/tfjs-yolo-tiny).
 import yolo, { downloadModel } from './yolo.js';
 
 const VID_SRC = 'fatrabbit.mp4';
 
 const W = 416;
 const H = 416;
-const W_RATIO = 1;
-const H_RATIO = 1;
+const W_RATIO = 2;
+const H_RATIO = 1.5;
 
-const BOX_COLORS = ['red', 'blue', 'green', 'orange', 'purple']
+const BOX_COLORS = ['red', 'blue', 'green', 'orange', 'purple'];
 
 // Callback function for asynchronous yolo function.
 function setResult(r) {
@@ -24,15 +23,18 @@ function draw(v, c, canvas, w, h) {
     .toFloat()
     .expandDims();
 
+    // Function imported from @MikeShi42 (https://github.com/ModelDepot/tfjs-yolo-tiny).
     yolo(tensor, model, { classProbThreshold: 0.8, maxBoxes: 5}).then(r => setResult(r));
 
+    // Clean up canvas before
+    c.clearRect(0, 0, w, h);
     c.drawImage(v, 0, 0, w, h);
 
     // If predictions are returned, draw boxes on canvas.
     try {
         for(let i = 0; i < 5; i++) {
 
-            // Get scaled box coordinates. 
+            // Get box coordinates. 
             let left = result[i].left;
             let right = result[i].right;
             let top = result[i].top;
@@ -41,12 +43,12 @@ function draw(v, c, canvas, w, h) {
             // Draw boxes with predicted classes.
             c.fillStyle = BOX_COLORS[i];
             c.strokeStyle = BOX_COLORS[i];
-            c.lineWidth = 5
-            c.strokeRect(left, top, right - left, bottom - top);
+            c.lineWidth = 5;
+            c.strokeRect(left * W_RATIO, top * H_RATIO, (right - left) * W_RATIO, (bottom - top) * H_RATIO);
             c.font = '15pt Courier New ';
-            c.fillRect(left, top, result[i].className.length * 15, 35)
-            c.fillStyle = 'black'
-            c.fillText(result[i].className, left + 5, top + 20);
+            c.fillRect(left * W_RATIO, top * H_RATIO, result[i].className.length * 15, 35);
+            c.fillStyle = 'black';
+            c.fillText(result[i].className, left * W_RATIO + 5, top * H_RATIO + 20);
         }
     }
     catch(e) {
@@ -91,6 +93,7 @@ function startVideo() {
 var model;
 var result;
 (async function() {
+    // Function imported from @MikeShi42 (https://github.com/ModelDepot/tfjs-yolo-tiny).
     model = await downloadModel();
 
     // Start video when model is loaded.
