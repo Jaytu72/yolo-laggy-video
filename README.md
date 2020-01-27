@@ -1,3 +1,4 @@
+# yolo-laggy-video
 An attempt at real-time tiny YOLO object detection on looped video using Tensorflow.js and the client's CPU.
 
 <p align="center">
